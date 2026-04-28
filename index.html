@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MYSTERIA Café, Diner &amp; Games — Leave a Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold:         #00FFCC;
+  --gold-bright:  #00FF99;
+  --card-bg:      #0A0F1A;
+  --amber:        #E0FFFF;
+}
+
+html, body {
+  min-height: 100%;
+  background: #05080F;
+  font-family: 'Rajdhani', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 10% 5%,  rgba(0,255,204,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 45% at 88% 92%,  rgba(0,100,80,0.25) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 50% 55%,  rgba(0,40,60,0.18)  0%, transparent 70%),
+    radial-gradient(ellipse 45% 55% at 72% 18%,  rgba(0,255,153,0.08) 0%, transparent 45%);
+  pointer-events: none;
+}
+
+/* Scanline overlay for cyberpunk effect */
+.bg-layer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,255,204,0.015) 2px,
+    rgba(0,255,204,0.015) 4px
+  );
+  pointer-events: none;
+}
+
+#particles {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.page {
+  position: relative;
+  z-index: 2;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(20px, 4vw, 40px) clamp(16px, 5vw, 24px) clamp(30px, 6vw, 50px);
+}
+
+.logo-block {
+  opacity: 0;
+  animation: fadeUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.15s forwards;
+  margin-bottom: clamp(4px, 1.5vw, 8px);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.logo-glow {
+  position: absolute;
+  inset: -50px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse 60% 40% at 50% 40%, rgba(0,255,204,0.18) 0%, transparent 70%);
+  animation: glowPulse 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.brand-logo-img {
+  display: block;
+  width: clamp(200px, 65vw, 420px);
+  height: auto;
+  position: relative;
+  z-index: 1;
+  margin-bottom: -2%;
+  filter: drop-shadow(0 0 26px rgba(0,255,204,0.28));
+}
+
+.stars-block {
+  opacity: 0;
+  animation: fadeUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.32s forwards;
+  text-align: center;
+  margin-bottom: clamp(14px, 3vw, 20px);
+}
+
+.stars {
+  display: inline-flex;
+  gap: 6px;
+  margin-bottom: 7px;
+}
+
+.star {
+  font-size: clamp(18px, 4.5vw, 22px);
+  color: var(--gold);
+  display: inline-block;
+  animation: starPulse 2.8s ease-in-out infinite;
+  filter: drop-shadow(0 0 6px rgba(0,255,204,0.70));
+}
+.star:nth-child(2) { animation-delay: 0.15s; }
+.star:nth-child(3) { animation-delay: 0.30s; }
+.star:nth-child(4) { animation-delay: 0.45s; }
+.star:nth-child(5) { animation-delay: 0.60s; }
+
+.stars-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(0,255,204,0.50);
+  font-family: 'Orbitron', sans-serif;
+}
+
+.card-wrap {
+  width: 100%;
+  max-width: 460px;
+  padding: 1.5px;
+  border-radius: 16px;
+  background: linear-gradient(90deg,
+    #001a14, #00FFCC, #00FF99, #00FFCC, #00FF99, #00FFCC, #001a14);
+  background-size: 250% 100%;
+  animation: borderFlow 5s linear infinite, fadeUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.48s both;
+  box-shadow:
+    0 0 0 1px rgba(0,255,204,0.08),
+    0 8px 30px rgba(0,0,0,0.70),
+    0 24px 70px rgba(0,0,0,0.60),
+    0 0 90px rgba(0,255,204,0.08);
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 14.5px;
+  padding: clamp(22px, 5vw, 30px) clamp(20px, 5vw, 28px) clamp(18px, 4vw, 24px);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(0,255,204,0.80) 50%, transparent 100%);
+  opacity: 0.8;
+}
+
+/* Corner accents */
+.card::after {
+  content: '';
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 20px; height: 20px;
+  border-top: 1px solid rgba(0,255,204,0.40);
+  border-right: 1px solid rgba(0,255,204,0.40);
+  pointer-events: none;
+}
+
+.card-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.card-label-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,255,204,0.22));
+}
+.card-label-line.r { background: linear-gradient(90deg, rgba(0,255,204,0.22), transparent); }
+.card-label-text {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(0,255,204,0.50);
+  white-space: nowrap;
+  font-family: 'Orbitron', sans-serif;
+}
+
+.review-text {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: clamp(15.5px, 3.8vw, 17px);
+  font-weight: 400;
+  line-height: 1.85;
+  color: #E0FFFF;
+  min-height: 90px;
+  word-break: break-word;
+  transition: opacity 0.2s ease;
+  letter-spacing: 0.01em;
+}
+.review-text.fade { opacity: 0; }
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: clamp(16px, 3.5vw, 22px) 0;
+}
+.div-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,255,204,0.18));
+}
+.div-line.r { background: linear-gradient(90deg, rgba(0,255,204,0.18), transparent); }
+.div-gem {
+  color: rgba(0,255,204,0.38);
+  font-size: 9px;
+  line-height: 1;
+}
+
+.btn-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.btn-cta {
+  flex: 1;
+  min-height: 52px;
+  padding: 0 18px;
+  background: linear-gradient(135deg, #003D30 0%, #007A60 40%, #00FFCC 60%, #00CC9F 100%);
+  background-size: 200% 200%;
+  color: #001A14;
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(10px, 2.6vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-position 0.4s ease;
+  box-shadow:
+    0 2px 0 rgba(255,255,255,0.12) inset,
+    0 -2px 0 rgba(0,0,0,0.28) inset,
+    0 4px 16px rgba(0,255,204,0.30),
+    0 8px 32px rgba(0,255,204,0.12);
+}
+
+.btn-cta::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -120%;
+  width: 70%; height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.20) 50%, transparent 100%);
+  transform: skewX(-18deg);
+  pointer-events: none;
+}
+
+.btn-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 2px 0 rgba(255,255,255,0.12) inset,
+    0 -2px 0 rgba(0,0,0,0.28) inset,
+    0 6px 24px rgba(0,255,204,0.50),
+    0 12px 40px rgba(0,255,204,0.22);
+  background-position: 100% 0;
+}
+.btn-cta:hover::after { animation: shimmerSweep 0.65s ease forwards; }
+.btn-cta:active { transform: scale(0.97) translateY(0); }
+
+.btn-cta.success {
+  background: linear-gradient(135deg, #003D30 0%, #007A60 100%);
+  box-shadow: 0 2px 0 rgba(255,255,255,0.10) inset, 0 4px 16px rgba(0,255,204,0.30);
+  color: #00FFCC;
+}
+
+.btn-refresh {
+  flex: 0 0 52px;
+  height: 52px;
+  background: rgba(0,255,204,0.04);
+  color: rgba(0,255,204,0.70);
+  border: 1px solid rgba(0,255,204,0.22);
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.22s ease;
+  backdrop-filter: blur(4px);
+}
+.btn-refresh:hover {
+  background: rgba(0,255,204,0.10);
+  border-color: rgba(0,255,204,0.50);
+  color: var(--gold-bright);
+  transform: translateY(-1px);
+  box-shadow: 0 0 16px rgba(0,255,204,0.20);
+}
+.btn-refresh:active { transform: scale(0.95); }
+.btn-refresh svg { transition: transform 0.48s cubic-bezier(.4,2,.55,.9); }
+.btn-refresh.spinning svg { transform: rotate(360deg); }
+
+.bottom-strip {
+  opacity: 0;
+  animation: fadeUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.65s forwards;
+  text-align: center;
+  margin-top: clamp(16px, 3.5vw, 22px);
+}
+
+.badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border: 1px solid rgba(0,255,204,0.22);
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0,255,204,0.55);
+  font-family: 'Orbitron', sans-serif;
+}
+.badge-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: dotPulse 2s ease-in-out infinite;
+  box-shadow: 0 0 6px rgba(0,255,204,0.80);
+}
+
+.address-text {
+  margin-top: 8px;
+  font-size: 10px;
+  color: rgba(0,255,204,0.28);
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.hint-text {
+  margin-top: 10px;
+  font-size: 11px;
+  color: rgba(0,255,204,0.35);
+  letter-spacing: 0.03em;
+  min-height: 16px;
+  transition: color 0.3s ease;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.08); }
+}
+@keyframes starPulse {
+  0%, 100% { transform: scale(1);    filter: drop-shadow(0 0 4px rgba(0,255,204,0.60)); }
+  50%       { transform: scale(1.1); filter: drop-shadow(0 0 14px rgba(0,255,204,1.00)); }
+}
+@keyframes borderFlow {
+  0%   { background-position: 0% 0; }
+  100% { background-position: 250% 0; }
+}
+@keyframes shimmerSweep {
+  0%   { left: -120%; }
+  100% { left: 160%; }
+}
+@keyframes dotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.3; transform: scale(0.6); }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-layer"></div>
+<canvas id="particles"></canvas>
+
+<div class="page">
+
+  <div class="logo-block">
+    <div class="logo-glow"></div>
+    <img src="logo.png" alt="MYSTERIA Café, Diner &amp; Games" class="brand-logo-img">
+  </div>
+
+  <div class="stars-block">
+    <div class="stars">
+      <span class="star">&#9733;</span>
+      <span class="star">&#9733;</span>
+      <span class="star">&#9733;</span>
+      <span class="star">&#9733;</span>
+      <span class="star">&#9733;</span>
+    </div>
+    <div class="stars-label">Share your experience</div>
+  </div>
+
+  <div class="card-wrap">
+    <div class="card">
+      <div class="card-label">
+        <div class="card-label-line"></div>
+        <span class="card-label-text">Your Review</span>
+        <div class="card-label-line r"></div>
+      </div>
+      <div class="review-text" id="reviewText">Loading your review&hellip;</div>
+      <div class="divider">
+        <div class="div-line"></div>
+        <span class="div-gem">&#10070;</span>
+        <div class="div-line r"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-cta" id="btnCopy" onclick="copyAndGo()">Copy &amp; Post on Google</button>
+        <button class="btn-refresh" id="btnRefresh" onclick="refreshReview()" title="New review">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-strip">
+    <div class="badge-row">
+      <div class="badge"><span class="badge-dot"></span>Best Cafe, Diner &amp; Gaming Lounge in Bhelupur</div>
+    </div>
+    <div class="address-text">Plot no B27/93-D-A, First Floor, above Royal Jewellers,<br>near Murikatta Baba Mandir, Jawahar Nagar Colony,<br>Bhelupur, Varanasi, Uttar Pradesh 221005</div>
+    <div class="hint-text" id="hint">Tap to copy your review, then paste it on Google.</div>
+  </div>
+
+</div>
+
+<script>
+var reviewLink = "https://search.google.com/local/writereview?placeid=ChIJp3TMKzAvjjkRahrHzJFbztY";
+
+// ─── ARRAY 1: VISIT OPENERS (English) ────────────────────────────────────────
+var VISIT_OPENERS = [
+  "Visited MYSTERIA Café, Diner and Games in Bhelupur recently and the experience completely blew me away",
+  "Had been hearing great things about MYSTERIA in Varanasi for months and finally made the trip, worth every bit of the wait",
+  "A friend dragged me to MYSTERIA Café and Diner in Bhelupur and I am so glad they did, it is unlike anything else in this city",
+  "Stumbled upon MYSTERIA Café, Diner and Games on Jawahar Nagar Colony and it turned out to be one of the best discoveries I have made in Varanasi",
+  "My family visited MYSTERIA for the first time last weekend and every single one of us walked out wanting to come back immediately",
+  "Was looking for a place in Varanasi that combined great food with gaming and MYSTERIA in Bhelupur is exactly that and more",
+  "Celebrated a birthday at MYSTERIA Café and Games and the entire experience was genuinely unforgettable from start to finish",
+  "Have been visiting MYSTERIA Café, Diner and Games regularly ever since it opened and the quality and vibe just keep getting better",
+  "A colleague recommended MYSTERIA for our office outing and every person in the group was thoroughly impressed",
+  "Tried MYSTERIA Café, Diner and Games in Bhelupur after seeing it mentioned online and the reality far exceeded any expectation",
+  "Was searching for a gaming lounge cum café in Varanasi and MYSTERIA is exactly the premium concept I had been hoping to find",
+  "Came to MYSTERIA Café, Diner and Games on a random afternoon and ended up staying three hours because the vibe and food were too good to leave",
+  "My nephew's birthday led us to MYSTERIA and it has now become our entire family's favourite place to celebrate anything",
+  "Needed a venue for a kitty party with a difference and MYSTERIA Café in Bhelupur delivered on every count imaginable",
+  "First time visitor to MYSTERIA Café, Diner and Games and I walked in a stranger and left an enthusiastic regular",
+  "Heard about MYSTERIA from three different people before visiting and every single one had undersold how good it actually is",
+  "Visited MYSTERIA Café and Games for a ring ceremony dinner and the atmosphere, food, and staff all exceeded our expectations",
+  "Was looking for something different in Varanasi for a marriage anniversary and MYSTERIA Café, Diner and Games was the perfect choice",
+  "Took my kids to MYSTERIA Café and Games for a weekend treat and the combination of great food and console gaming made them the happiest kids in the city",
+  "My first experience at MYSTERIA Café, Diner and Games in Bhelupur turned a casual visit into an evening I keep talking about",
+  "Came to MYSTERIA for the PS5 gaming and stayed three times longer than planned because the food and ambience refused to let me leave",
+  "Organised a small corporate meeting at MYSTERIA using their projector setup and the team was genuinely impressed by the whole package",
+  "Visiting MYSTERIA Café, Diner and Games in Jawahar Nagar Colony was on my list for a while and the experience finally matched the anticipation",
+  "Random weekday visit to MYSTERIA Café and Diner turned into one of the most enjoyable evenings I have had in Varanasi",
+  "Brought my parents to MYSTERIA in Bhelupur and they were delighted by the food and charmed by the overall gaming café concept",
+  "Went to MYSTERIA Café, Diner and Games for an esports session with friends and the whole experience from gaming to dining was impeccable",
+  "Our office group chose MYSTERIA for the farewell lunch and the food and atmosphere made it a genuinely memorable send-off",
+  "Had been wanting to try MYSTERIA Café and Games for months and the visit finally delivered on every bit of the hype",
+  "Came to MYSTERIA for the Butter Chicken and Biryani reputation and left completely in love with the entire experience",
+  "Visited MYSTERIA Café, Diner and Games for a sports event on the projector and between the food and the atmosphere it was a perfect evening"
+];
+
+// ─── ARRAY 2: GAMING & VIBE ───────────────────────────────────────────────────
+var GAMING_VIBE = [
+  "The PC and console gaming setup at MYSTERIA is seriously impressive, the hardware is top-tier and the stations are comfortable for long sessions",
+  "PS5 gaming at MYSTERIA Café is available and the controllers and display quality make it a genuinely premium gaming experience",
+  "The esports setup at MYSTERIA is one of the best in Varanasi, whether you are playing Valorant or just chilling on GTA 5 it delivers",
+  "Played GTA 5 and Valorant at MYSTERIA and the lag-free high-performance setup makes the experience genuinely excellent",
+  "The gaming zone at MYSTERIA has Roblox and Minecraft available which made my kids absolutely ecstatic for hours",
+  "Modern Combat sessions at MYSTERIA are intense and the dedicated gaming stations give you the focus you need for competitive play",
+  "The fully air-conditioned environment at MYSTERIA makes long gaming sessions genuinely comfortable regardless of the weather outside",
+  "MYSTERIA is fully AC so even during the summer heat in Varanasi you can game and dine in complete comfort",
+  "They have a selection of books for reading at MYSTERIA which is a thoughtful touch for those who want to unwind between gaming sessions",
+  "Parking is available at MYSTERIA which is a genuine relief in the Bhelupur area and makes visiting completely hassle-free",
+  "The gaming lounge vibe at MYSTERIA is authentically cyberpunk, the lighting and setup create an atmosphere unlike anything else in Varanasi",
+  "Esports fans will feel right at home at MYSTERIA, the gaming setup is professional grade and the atmosphere is genuinely competitive",
+  "The console gaming at MYSTERIA is set up to perfection, PS5 sessions here are smooth, immersive, and a cut above anything else in the city",
+  "Whether you are a casual gamer or a serious esports enthusiast MYSTERIA Café caters to both with the same high-quality setup",
+  "The Valorant sessions at MYSTERIA with friends turned into a proper tournament and the gaming setup handled everything flawlessly",
+  "GTA 5 at MYSTERIA is the kind of experience that makes you realise how good gaming can be with the right hardware and environment",
+  "The gaming area and the dining area at MYSTERIA are perfectly integrated so you can eat brilliantly without pausing your session",
+  "MYSTERIA has created a genuinely unique concept where premium food and premium gaming coexist seamlessly in one incredible space",
+  "The cool ambient lighting in the gaming zone at MYSTERIA sets the perfect mood whether you are grinding Valorant or relaxing on Minecraft",
+  "Loved that MYSTERIA has books on the shelves too, it gives the space a cultural depth beyond pure gaming that makes it feel thoughtful",
+  "Parking convenience at MYSTERIA removes one of the usual headaches of visiting Bhelupur and lets you focus entirely on enjoying yourself",
+  "The Minecraft and Roblox availability at MYSTERIA makes it the perfect destination for kids who want to game while the adults enjoy great food",
+  "Played Modern Combat at MYSTERIA and the responsive controls and quality display made it feel like a premium gaming parlour experience",
+  "The PC gaming stations at MYSTERIA are well-maintained, well-specced, and set up for the kind of extended play sessions gamers actually enjoy",
+  "MYSTERIA manages to be a great café, a great diner, and a great gaming lounge all at once without compromising on any single element",
+  "The esports culture at MYSTERIA is real and you can feel it in the setup, the community, and the genuine enthusiasm of the staff for gaming",
+  "Air conditioning at MYSTERIA is excellent and consistent throughout the space making it a cool oasis during Varanasi summers",
+  "The whole cyberpunk gaming lounge aesthetic at MYSTERIA is executed with real conviction and it creates an atmosphere that is truly immersive",
+  "Roblox and GTA 5 sessions at MYSTERIA made my children's day and the adults were equally happy with the food and ambience",
+  "From casual gaming to serious competitive esports MYSTERIA has the setup and the atmosphere to make every gaming session genuinely special"
+];
+
+// ─── ARRAY 3: FOOD PRAISE (English) ──────────────────────────────────────────
+var FOOD_PRAISE = [
+  "The Butter Chicken at MYSTERIA is silky, well-spiced, and pairs perfectly with their freshly baked Garlic Naan",
+  "Chicken Tikka Masala here is rich, fragrant, and the sauce has a depth that only proper slow-cooking achieves",
+  "The Dum Maarke Biryani at MYSTERIA is outstanding whether you choose the Chicken, Mutton, or Veg version, all are deeply flavoured",
+  "Mutton Rogan Josh at MYSTERIA is aromatic and rich, the slow-cooked mutton falls apart beautifully in a truly exceptional gravy",
+  "The Chicken Lababdar is a standout on the main course menu, the charred onion-tomato gravy has a wonderful smoky complexity",
+  "Palak Paneer here is smooth, vibrantly green, and uses clearly fresh ingredients, a vegetarian dish that genuinely impresses",
+  "The Sizzling Brownie with Ice Cream at MYSTERIA is a theatrical and utterly delicious dessert that everyone at the table fights over",
+  "Dal Makhani Double Fry is exceptionally creamy and rich with the double tempering giving it an extra layer of depth and flavour",
+  "The Chicken Bamboo Biryani is one of the most creative biryani presentations I have encountered, the flavour matches the spectacle",
+  "Paneer Malai Tikka from the tandoor section is melt-in-mouth tender with a beautifully calibrated marinade",
+  "The Veg Shikh Kabab here is surprisingly meaty in texture and the smoky char from the tandoor is genuinely wonderful",
+  "Kadhai Chicken is bold and rustic, the freshly ground masalas are alive in every bite and it is a must-order for any chicken lover",
+  "The Chicken Matka Biryani arrives in a clay pot and the aroma when you open it is absolutely spectacular",
+  "Malai Kofta at MYSTERIA is one of the creamiest and most well-balanced versions I have had anywhere in Varanasi",
+  "The Paneer Laziz is a beautifully delicate paneer preparation with a sauce that is rich without being heavy",
+  "Kaju Masala here is decadent and fragrant, the cashew sauce is thick and perfectly seasoned making it an indulgent vegetarian treat",
+  "The Hakka Noodles in Schezwan version have a genuine wok char and the spice level is exactly right for the adventurous palate",
+  "Chilli Paneer at MYSTERIA is crisp on the outside, soft inside, and the sauce hits all the right notes of spice and tang",
+  "The Ramen at MYSTERIA is a genuine surprise, the broth is rich and the Kimchi version has an authentic depth of fermented flavour",
+  "Momos here are exceptional whether steamed, fried, or pan-fried, the dough is thin and the filling is well-seasoned throughout",
+  "The Penne in Red Sauce is generously sauced and comforting, a proper pasta dish that does not cut corners on ingredients",
+  "Honey Chilli Potato at MYSTERIA is dangerously addictive, the balance of heat and sweetness is absolutely perfect",
+  "The Chicken Lollipop arrived with a beautiful glaze and the meat was perfectly cooked right through, completely addictive",
+  "Mutton Rara is a boldly flavoured dish with a gravy of exceptional complexity, one of the best things on the entire menu",
+  "The Anjeer and Walnut Kofta is a beautifully creative vegetarian dish, the sweetness of fig with walnut creates a genuinely luxurious texture",
+  "Mutton Dum Biryani at MYSTERIA is layered and aromatic, the mutton pieces are tender throughout in a perfectly executed classic",
+  "The Paneer Dhaniya Adraki is a fragrant and lighter paneer option, the coriander and ginger combination is wonderfully fresh",
+  "Crispy Baby Corn is perfectly fried with a light, seasoned coating, a brilliant vegetarian snack that disappears from the plate instantly",
+  "The Delhi Style Chicken Korma is creamy, subtly spiced, and has an authentic richness that speaks to careful recipe development",
+  "Garlic Naan here is perfectly baked with generous garlic butter and pairs brilliantly with any of the rich gravies on the menu",
+  "The Cheese Naan is indulgent and delicious, the cheese melts beautifully inside and the naan itself is cooked to perfection",
+  "Tandoori Chicken from MYSTERIA's tandoor section is well-marinated, properly charred, and genuinely impressive in its simplicity",
+  "The Brownie with Chocolate is fudgy and deeply chocolatey, a simple dessert executed with the kind of care it deserves",
+  "Gulab Jamun here are soft, perfectly soaked in syrup, and served warm, a classic dessert done absolutely flawlessly",
+  "The Fruit Salad with Ice Cream is a refreshing and well-assembled dessert, the combination of fresh fruit and creamy ice cream is delightful",
+  "Paneer Makhani Mille Feuille is a genuinely creative dish that blends French pastry technique with Indian flavour, truly memorable",
+  "The Mushroom Peas Curry is a beautifully balanced vegetarian main with mushrooms retaining their texture in a flavourful sauce",
+  "Spring Roll at MYSTERIA is crisp, well-filled, and perfectly fried, a reliable and satisfying starter every single time",
+  "The Vegit Six burger is a creative and surprisingly satisfying vegetarian option with well-considered toppings and a fresh bun",
+  "Chicken Do Pyaja has a wonderful caramelised onion base that gives it a sweetness and depth that is hard to resist",
+  "The Afghani Chicken Tikka is rich, creamy-marinated, and cooked with a finesse that makes it one of the best things to order at MYSTERIA",
+  "Paneer Jaypuriya is a bold and well-spiced Rajasthani-inspired preparation that brings a welcome regional character to the menu",
+  "The Corn Palak is a delightful combination that I had never tried before and it is now firmly one of my favourite dishes here",
+  "Lachha Paratha at MYSTERIA is perfectly layered, crispy on the outside and soft inside, genuinely excellent bread to pair with any gravy",
+  "The Schezwan Fried Rice is punchy, fragrant, and tossed with visible vegetables and excellent wok flavour throughout"
+];
+
+// ─── ARRAY 4: EVENTS & OCCASIONS ─────────────────────────────────────────────
+var EVENTS_MENTIONS = [
+  "Hosted my son's birthday at MYSTERIA Café and Games and the combination of food, gaming, and staff attention made it the best kids' birthday party in Varanasi",
+  "MYSTERIA is absolutely perfect for children's birthday parties, great food, console gaming, and an atmosphere that kids absolutely love",
+  "Our kitty party at MYSTERIA Café, Diner and Games was a unanimous success, the food kept everyone happy and the gaming zone was a delightful bonus",
+  "Celebrated our ring ceremony dinner at MYSTERIA and the staff went genuinely above and beyond to make the occasion truly special",
+  "Marriage anniversary dinner at MYSTERIA was exactly what we wanted, a beautiful atmosphere, outstanding food, and service that made us feel valued",
+  "MYSTERIA's projector setup made our corporate meeting genuinely productive and comfortable, a fantastic venue for professional events",
+  "Used the projector at MYSTERIA for a sports event screening and the combination of great viewing and great food made it an incredible evening",
+  "Kids loved MYSTERIA for the birthday party, the PS5 gaming was a huge hit and the Sizzling Brownie was the birthday cake moment of the evening",
+  "Our kitty group meets regularly and MYSTERIA has now become our permanent venue, the food variety means everyone always finds something they love",
+  "Celebrated a marriage anniversary at MYSTERIA and the warm service and beautiful food made the occasion feel genuinely memorable and special",
+  "The projector availability at MYSTERIA makes it a perfect venue for corporate presentations and the AC environment keeps everyone comfortable",
+  "Birthday party for my daughter at MYSTERIA was a dream, the gaming zone kept the kids entertained while the adults enjoyed the food and ambience",
+  "Ring ceremony dinner at MYSTERIA went beautifully, the staff helped coordinate everything and the food was genuinely excellent throughout",
+  "MYSTERIA is the ideal venue for kitty parties because the diverse menu ensures every taste preference in the group is more than satisfied",
+  "Used MYSTERIA for a small corporate gathering with the projector and it created a much more engaging atmosphere than a traditional boardroom",
+  "The birthday setup for my nephew at MYSTERIA was everything we hoped for, gaming plus great food plus wonderful staff is an unbeatable combination",
+  "Our anniversary at MYSTERIA was intimate and beautifully attended to, the staff treated us with genuine warmth throughout the entire evening",
+  "Sports screening at MYSTERIA on the projector with friends and the Mutton Biryani and Butter Chicken made it the best match-watching experience in Varanasi",
+  "MYSTERIA handles celebrations with a warmth and professionalism that makes every occasion feel properly special without being over-formal",
+  "The combination of gaming and great food at MYSTERIA makes it the most versatile party venue in Varanasi for every age group",
+  "Corporate meetings at MYSTERIA are a refreshing change from sterile conference rooms, the projector and food make everything more productive",
+  "Kids' birthday parties at MYSTERIA are genuinely unforgettable because you get gaming, great food, and staff who actually make children feel special",
+  "Our family reunion at MYSTERIA was a complete success, the menu had something for everyone from the youngest to the oldest family member",
+  "MYSTERIA for a ring ceremony dinner brought exactly the right mix of elegance and warmth that such an occasion deserves",
+  "Organised a farewell party at MYSTERIA and everyone agreed it was the best possible way to send someone off, food, games, and great vibes"
+];
+
+// ─── ARRAY 5: MERCHANDISE & UNIQUE FEATURES ──────────────────────────────────
+var SPECIAL_FEATURES = [
+  "The anime figures on display at MYSTERIA are a genuine delight for any fan, I spent as much time admiring them as eating which says a lot",
+  "As an anime enthusiast I was thrilled to find anime figures and keychains available at MYSTERIA, a truly unique concept for a café in Varanasi",
+  "The anime keychains at MYSTERIA make for a wonderful souvenir that you would never expect to find in a café setting, completely charming",
+  "MYSTERIA sells anime figures and keychains which gives it a cultural personality far beyond just food and gaming, a genuinely thoughtful touch",
+  "The collection of anime merchandise at MYSTERIA shows that the owners have thought carefully about creating a destination rather than just a restaurant",
+  "Anime figures displayed throughout MYSTERIA create an atmosphere that manga and anime fans will find immediately warm and welcoming",
+  "Bought an anime keychain at MYSTERIA and it is now one of my favourite things I have picked up anywhere in Varanasi",
+  "The books available at MYSTERIA for reading between gaming sessions add a thoughtful dimension that elevates the overall concept significantly",
+  "Parking availability at MYSTERIA eliminates the usual stress of visiting Bhelupur and lets you arrive relaxed and leave satisfied",
+  "MYSTERIA's fully air-conditioned space is a genuine blessing in Varanasi's climate and makes every visit completely comfortable",
+  "The anime merchandise at MYSTERIA combined with the gaming setup creates a fandom-friendly environment unlike anything else in the city",
+  "Full air conditioning throughout MYSTERIA means you can game for hours and dine at leisure without ever feeling uncomfortable",
+  "The projector at MYSTERIA for corporate meetings and sports events makes it a multi-purpose venue that is genuinely well thought out",
+  "MYSTERIA is the only place in Varanasi where I can grab anime figures, play PS5, eat a proper Biryani, and drink great coffee all in one visit",
+  "The thoughtfulness behind MYSTERIA is evident in every detail, from the gaming setup to the anime merchandise to the quality of the food",
+  "Anime figures and gaming culture coexist beautifully at MYSTERIA with a food menu that could stand on its own in any serious restaurant",
+  "The reading corner at MYSTERIA is a charming touch that makes the café suitable for solo visitors who want to unwind in a beautiful environment",
+  "MYSTERIA's projector for sports events is a premium experience, watching a match here with friends and great food is an evening in itself",
+  "The anime keychains at MYSTERIA are high quality and reasonably priced, a genuine collectible that makes every visit even more special",
+  "Free parking, full AC, anime merchandise, PS5 gaming, projector availability, and outstanding food. MYSTERIA has genuinely thought of everything",
+  "The gaming lounge concept with premium dining at MYSTERIA is executed so well it feels like something you would find in a metro city, not Varanasi",
+  "Anime culture meets gaming culture meets fine dining at MYSTERIA, it is a convergence of passions that works beautifully in practice",
+  "The books on the shelves at MYSTERIA are a quiet but meaningful statement that this place is about more than just gaming and food",
+  "MYSTERIA's unique combination of gaming, anime culture, books, and outstanding food makes it the most interesting destination in Bhelupur",
+  "The anime figures at MYSTERIA are displayed with genuine care and reverence, you can tell the owners are fans themselves"
+];
+
+// ─── ARRAY 6: HINGLISH OPENERS ───────────────────────────────────────────────
+var HI_OPENERS = [
+  "MYSTERIA Café, Diner and Games Bhelupur mein pehli baar gaye aur experience itna amazing tha ki sab kuch bhool gaye",
+  "Kaafi samay se sunte aa rahe the MYSTERIA ke baare mein Varanasi mein, finally gaye aur expectations se kahin zyada mila",
+  "Dost ne MYSTERIA Café recommend kiya gaming aur khane ke liye, aur yeh suggestion zindagi ki best recommendations mein se ek nikli",
+  "Office ke saathiyon ke saath MYSTERIA Café, Diner and Games mein gaye aur poori team bahut khush hokar wapas aayi",
+  "Birthday party ke liye MYSTERIA choose kiya Bhelupur mein aur sab ne itna enjoy kiya ki next celebration bhi wahi chahiye",
+  "PS5 gaming ke liye MYSTERIA gaye the aur khane ki quality dekhkar gaming bhi bhool gaye thodi der ke liye",
+  "Bhelupur mein kuch alag dhundh raha tha, MYSTERIA Café, Diner and Games ne genuinely expectations se bahut zyada deliver kiya",
+  "Kitty party ke liye jagah dhundh rahe the aur MYSTERIA ne bilkul perfect experience diya, sab se badhiya choice thi yeh",
+  "Ring ceremony dinner ke liye MYSTERIA choose kiya aur poora parivaar bahut impressed aur khush tha",
+  "Anniversary dinner ke liye MYSTERIA mein gaye aur food, ambience, aur service sab occasion ke level par the",
+  "Teen logo ne MYSTERIA recommend kiya tha, visit ke baad samjha ki teeno itna enthusiastic kyun the",
+  "Bacche ke birthday ke liye MYSTERIA Café and Games perfect tha, gaming aur khana dono ne unhe khush kar diya",
+  "Varanasi mein gaming café aur diner dono ek jagah mila pehli baar, MYSTERIA genuinely unique concept hai",
+  "Pehle sirf gaming ke liye aaya tha MYSTERIA, phir khana khaya aur ab dono ke liye aata hoon har baar",
+  "Corporate meeting ke liye MYSTERIA ka projector setup use kiya aur team ne space aur food dono ko bahut appreciate kiya",
+  "Esports session ke liye dost ke saath MYSTERIA gaye aur Valorant ke baad jo Biryani khayi woh experience hi alag tha",
+  "Random weekend par MYSTERIA Café, Diner and Games try kiya aur ab yeh regular haunt ban gayi hai",
+  "Pehle sirf naam suna tha MYSTERIA ka, visit ke baad samjha ki itni hype kyun hai, sab sach tha",
+  "Varanasi mein best gaming lounge cum diner dhundh raha tha aur MYSTERIA ne ek hi baar mein poori zaroorat puri kar di",
+  "MYSTERIA mein anime figures dekhkar genuinely surprised hua, phir PS5 kheela aur phir Mutton Biryani khayi, perfect evening thi",
+  "Joint family gathering ke liye MYSTERIA le gaye aur sabhi generations khush rahe, menu mein sab ke liye kuch na kuch tha",
+  "Sports match projector par MYSTERIA mein dekha aur jo khana mila uske baad kabhi ghar pe match dekhna mushkil lagega",
+  "Mahine mein teen baar MYSTERIA jaana routine ban gayi hai, matlab kuch toh genuinely khaas hai is jagah mein",
+  "Naya lagta tha MYSTERIA Café and Games ka concept, ek visit ne pura fan bana diya, bilkul",
+  "Farewell party MYSTERIA mein rakhi aur team ne agree kiya ki yeh sabse yaadgaar send-off tha jo humne kabhi kiya"
+];
+
+// ─── ARRAY 7: HINGLISH FOOD & GAMING ─────────────────────────────────────────
+var HI_FOOD_GAMES = [
+  "Butter Chicken aur Garlic Naan ka combination MYSTERIA mein itna perfect tha ki ghar wali recipe ab phiki lagti hai",
+  "Chicken Tikka Masala ka sauce itna rich aur fragrant tha, slow cooking ka kaam clearly dikh raha tha",
+  "Dum Maarke Biryani mein Chicken version try kiya, Matka presentation ke saath aaya aur khushbu ne hi pagal kar diya",
+  "Mutton Rogan Josh itna aromatic aur fall-apart tender tha ki seriously best version raha abhi tak Varanasi mein",
+  "Palak Paneer fresh aur vibrant tha, clearly real ingredients use ho rahe hain yahan, taste mein difference feel hota hai",
+  "Sizzling Brownie with Ice Cream ka sizzle sun ke poori table dekhne lagi, taste utna hi dramatic tha",
+  "Dal Makhani Double Fry itna creamy aur rich tha ki double tempering ka concept samjh mein aaya khake",
+  "Chicken Bamboo Biryani ka presentation unique tha aur flavour equally spectacular, must-order hai yeh",
+  "Paneer Malai Tikka itna tender tha ki bite lete hi melt ho gaya, tandoor ka kaam dikhta hai clearly",
+  "Kadhai Chicken bold aur rustic tha, masalon ki freshness gravy mein zinda feel ho rahi thi",
+  "Malai Kofta itna creamy aur well-balanced tha ki seriously best vegetarian dish category mein aata hai yahan",
+  "Hakka Noodles ka Schezwan version wok char ke saath aaya aur spice level bilkul right tha",
+  "Chilli Paneer crisp tha bahar se, soft andar se, sauce mein spice aur tang ka balance perfect",
+  "Ramen MYSTERIA mein try kiya aur genuinely surprised tha ki Varanasi mein itna achha ramen milega",
+  "Momos yahan outstanding hain, steamed aur pan fried dono try kiye aur dono ne disappoint nahi kiya",
+  "Honey Chilli Potato ek baar khao aur phir baar baar order karte raho, addictive hai yeh bilkul",
+  "Chicken Lollipop ka glaze beautiful tha aur meat right through cooked tha, addictive dish hai",
+  "Mutton Rara itna bold aur complex tha gravy mein ki seriously is dish ke liye baar baar aana padega",
+  "Anjeer aur Walnut Kofta ek creative vegetarian dish tha, fig aur walnut ka combination genuinely luxurious",
+  "Paneer Laziz ka naam sach tha, sauce light par flavorful tha aur paneer fresh aur soft",
+  "Kaju Masala decadent tha, cashew sauce thick aur perfectly seasoned, indulgent vegetarian treat",
+  "Garlic Naan perfectly baked tha, generous garlic butter ke saath, kisi bhi gravy ke saath perfect pairing",
+  "Cheese Naan indulgent tha aur andar ka cheese beautifully melt hua, khate waqt genuinely happy feel kiya",
+  "Gulab Jamun soft aur perfectly soaked the, warm serve hue, classic done absolutely right",
+  "Brownie with Chocolate fudgy tha aur chocolate sauce genuinely rich thi, simple par perfect dessert",
+  "Fruit Salad with Ice Cream fresh aur well-assembled tha, fruit aur ice cream ka combination refreshing",
+  "Spring Roll crisp aur well-filled tha, perfectly fried, reliable starter jo kabhi disappoint nahi karta",
+  "Chicken Do Pyaja mein caramelised onion base ki sweetness aur depth resist nahi ho paayi",
+  "Paneer Makhani Mille Feuille ek aisa dish tha jo menu par dekha toh order karna tha, taste mein bhi alag tha",
+  "Corn Palak combination pehle try nahi kiya tha, ab yeh favourite dish ban gayi hai MYSTERIA mein"
+];
+
+// ─── ARRAY 8: HINGLISH AMBIENCE & CLOSING ────────────────────────────────────
+var HI_AMBIENCE_CLOSE = [
+  "MYSTERIA ka gaming lounge vibe genuinely cyberpunk aur premium feel deta hai, Varanasi mein aise aesthetic kahi nahi dekha",
+  "PS5 gaming setup top-tier hai MYSTERIA mein, controllers aur display quality make karte hain premium experience",
+  "Poora AC hai MYSTERIA mein aur gaming sessions mein kabhi uncomfortable nahi feel hua, comfort level excellent hai",
+  "Anime figures dekh ke dil khush ho gaya, MYSTERIA sirf khane ki jagah nahi hai, ek culture space bhi hai",
+  "Anime keychains MYSTERIA mein milti hain aur yeh ek aisi cheez hai jo aap Varanasi mein aur kahi nahi paoge",
+  "Parking available hai MYSTERIA mein, Bhelupur mein yeh ek practical relief hai jo visit stress-free banata hai",
+  "Books for reading bhi available hain MYSTERIA mein, gaming ke beech break mein padhna ek charming option hai",
+  "Projector ke saath sports match MYSTERIA mein dekhna ek premium experience hai, ghar ki screen yaad nahi aati",
+  "Corporate meeting MYSTERIA ke projector setup ke saath bilkul productive rahi, environment bhi comfortable tha",
+  "Staff bahut friendly aur genuine hai MYSTERIA mein, forced hospitality nahi lagti, asli warmth feel hoti hai",
+  "Esports gaming Valorant ya GTA 5 ke liye MYSTERIA ka setup professional grade hai, seriously impressive hai",
+  "Minecraft aur Roblox bhi available hain MYSTERIA mein, baccho ke liye gaming options genuinely great hain",
+  "Modern Combat sessions MYSTERIA mein lag-free aur smooth the, setup ka quality dikhta hai clearly",
+  "MYSTERIA ka complete package dekha toh seriously Varanasi ke kisi aur jagah se compare hi nahi hota",
+  "Gaming culture aur anime culture aur fine dining teen cheezein MYSTERIA mein milti hain, concept brilliant hai",
+  "MYSTERIA Café, Diner and Games Varanasi ka best kept secret tha, ab word of mouth se sab jaante hain",
+  "Dil se recommend karunga MYSTERIA ko, ek baar aaiye aur quality khud judge kariye, zaroor khush honge",
+  "Pehle kyun nahi aaya yeh regret hai MYSTERIA ke baad, ab bina yahan gaye koi celebration nahi banti",
+  "Food, gaming, anime, books, projector, AC, parking sab kuch ek jagah MYSTERIA mein, genuinely complete package",
+  "5 star se kam dena unfair hoga MYSTERIA ko, experience genuinely outstanding hai har visit mein",
+  "Sabko recommend kar chuka hoon MYSTERIA aur sab ne shukriya bola, that says everything",
+  "Varanasi aur specifically Bhelupur mein MYSTERIA jaisa concept pehle nahi tha, owners ne kuch genuinely special banaya hai",
+  "Har baar MYSTERIA jaata hoon toh kuch naya discover karta hoon menu mein ya gaming mein, variety bahut hai",
+  "MYSTERIA mein jo value for experience milti hai woh genuinely rare hai, itna kuch itni quality mein ek jagah",
+  "Best decision Varanasi mein yeh hai ki MYSTERIA try karo, ek baar gaye aur regular ban jaoge"
+];
+
+// ─── ARRAY 9: ONE LINERS (English) ───────────────────────────────────────────
+var ONE_LINERS_EN = [
+  "MYSTERIA Café, Diner and Games in Bhelupur is the most exciting destination in Varanasi right now. The PS5 gaming, the anime figures, the Mutton Biryani, and the Butter Chicken together create an experience unlike anything else in the city.",
+  "Have been going to MYSTERIA Café and Games regularly and it never disappoints. The Chicken Tikka Masala, Sizzling Brownie with Ice Cream, and the Valorant sessions make every visit genuinely memorable.",
+  "MYSTERIA is the complete package. Great AC gaming lounge with PS5 and PC, outstanding biryani and tandoori food, anime merchandise to browse, and a team that genuinely loves what they do.",
+  "Took my kids to MYSTERIA Café, Diner and Games for a birthday and it was the best decision. The PS5 gaming plus the Sizzling Brownie plus the Dal Makhani Double Fry made everyone happy from youngest to oldest.",
+  "MYSTERIA in Bhelupur is Varanasi's answer to the premium gaming café concept done right. The Dum Maarke Biryani is spectacular and the GTA 5 sessions are equally hard to tear yourself away from.",
+  "For anime fans in Varanasi, MYSTERIA Café, Diner and Games is a must-visit. Anime figures, anime keychains, great food, console gaming, and a projector for events. Truly one of a kind.",
+  "The Mutton Rogan Josh and Butter Chicken at MYSTERIA are among the best I have had in Varanasi. Combine that with the PS5 gaming and fully AC environment and there is no reason to go anywhere else.",
+  "Used MYSTERIA's projector for a corporate meeting and for a sports screening. Both times the projector setup, the AC comfort, and the outstanding food made the events better than they would have been anywhere else.",
+  "From the Chicken Bamboo Biryani to the Honey Chilli Potato to the Afghani Chicken Tikka, MYSTERIA Café serves food that genuinely stands alongside the best restaurants in Varanasi.",
+  "Kids' birthday parties at MYSTERIA are in a league of their own. Roblox and PS5 for the children, Mutton Biryani and Palak Paneer for the adults, and an atmosphere that makes everyone smile.",
+  "MYSTERIA Café, Diner and Games has created something genuinely unique in Varanasi. Premium gaming, great food, anime culture, and thoughtful touches like books and parking make it the complete destination.",
+  "The Paneer Makhani Mille Feuille and Anjeer Walnut Kofta at MYSTERIA show real culinary creativity. Paired with the gaming lounge atmosphere this place has become my favourite in Bhelupur without question.",
+  "Esports fans will love MYSTERIA for the Valorant and GTA 5 setup. Foodies will love it for the Biryani and Butter Chicken. Anime fans will love it for the figures and keychains. Everyone wins.",
+  "MYSTERIA Café Bhelupur is fully AC, has parking, serves outstanding food from Momos to Biryani to Ramen, and has a PS5 gaming zone. There is literally no reason not to make this your regular spot in Varanasi.",
+  "Celebrated our marriage anniversary at MYSTERIA and the Mutton Rogan Josh with Garlic Naan followed by a Sizzling Brownie was perfection. The staff made the evening genuinely special with their warmth and care.",
+  "The Ramen at MYSTERIA surprised me completely. The broth quality rivals dedicated ramen spots. Paired with the anime aesthetic and PS5 gaming this place is like a piece of modern food culture dropped into Varanasi.",
+  "Dal Makhani Double Fry, Kaju Masala, Palak Paneer, and Anjeer Walnut Kofta. The vegetarian menu at MYSTERIA is as seriously developed as the non-vegetarian one and that is genuinely impressive.",
+  "MYSTERIA Café and Games has the best biryani lineup in Bhelupur. Chicken Matka, Mutton Dum, Soya Dum, Bamboo version, all beautifully dum-cooked and served with care. The gaming zone makes the wait enjoyable.",
+  "Organising events at MYSTERIA is a pleasure. The projector works perfectly, the AC keeps everyone comfortable, the food impresses every guest, and the anime and gaming décor creates a conversation starter for everyone.",
+  "From Modern Combat sessions to Gulab Jamun to Chicken Lababdar to anime keychain browsing, a single evening at MYSTERIA Café in Varanasi covers more ground than a week of outings anywhere else.",
+  "The Honey Chilli Potato, Spring Roll, Crispy Baby Corn, and Chicken Lollipop starters at MYSTERIA are all exceptional. The food quality is the kind that makes you realise how much you had been settling elsewhere.",
+  "MYSTERIA in Bhelupur is fully committed to its concept and that shows in every detail. The gaming hardware is professional grade, the food is restaurant quality, and the anime merchandise is a genuine collector's delight.",
+  "Kitty parties at MYSTERIA are unforgettable. The diverse menu ensures everyone finds something they love, the gaming zone is a fun bonus, and the staff handles groups with impressive efficiency and warmth.",
+  "The Momos at MYSTERIA are outstanding in every form. Steamed, fried, pan-fried, or Afghani, the dough is perfect and the filling is expertly seasoned. Combined with Ramen and great coffee this place covers all bases.",
+  "MYSTERIA Café, Diner and Games in Varanasi is everything a modern entertainment and dining destination should be. Outstanding food, premium gaming, anime culture, thoughtful amenities, and genuinely warm service."
+];
+
+// ─── ARRAY 10: ONE LINERS (Hinglish) ─────────────────────────────────────────
+var ONE_LINERS_HI = [
+  "MYSTERIA Café, Diner and Games Bhelupur mein Varanasi ka sabse exciting destination hai. PS5 gaming plus anime figures plus Mutton Biryani plus Butter Chicken ek saath milna genuinely rare hai.",
+  "Mahino se MYSTERIA ka regular hoon aur kabhi disappointing nahi hua. Chicken Tikka Masala, Sizzling Brownie, aur Valorant sessions har visit ko memorable banate hain.",
+  "MYSTERIA complete package hai. AC gaming lounge, outstanding Biryani aur Tandoori food, anime merchandise, aur ek team jo genuinely apna kaam karta hai passion ke saath.",
+  "Bachon ke birthday ke liye MYSTERIA best jagah hai Varanasi mein. PS5 gaming, Sizzling Brownie, aur Dal Makhani Double Fry ne sabko khush kar diya har age group mein.",
+  "MYSTERIA Bhelupur mein Varanasi ka premium gaming café concept sahi tarah execute kar raha hai. Dum Maarke Biryani spectacular hai aur GTA 5 sessions bhi usi level ke hain.",
+  "Anime fans ke liye MYSTERIA must-visit hai Varanasi mein. Anime figures, keychains, great food, console gaming, projector. Aisa combination kahin aur nahi milega yahan.",
+  "MYSTERIA mein Mutton Rogan Josh aur Butter Chicken Varanasi mein best version mila. PS5 gaming aur full AC environment ke saath kahin aur jaane ka reason hi nahi bachta.",
+  "Corporate meeting aur sports screening dono ke liye MYSTERIA ka projector use kiya. Dono baar AC comfort, outstanding food, aur setup ne events ko genuinely better banaya.",
+  "Chicken Bamboo Biryani se Honey Chilli Potato se Afghani Chicken Tikka tak, MYSTERIA ka food Varanasi ke best restaurants ke alongside genuinely khadha hota hai.",
+  "MYSTERIA Bhelupur mein Roblox aur PS5 bacchon ke liye, Mutton Biryani aur Palak Paneer adults ke liye, aur ek aisa atmosphere jo sab ke chehre par smile le aata hai.",
+  "Dal Makhani Double Fry, Kaju Masala, Palak Paneer, Anjeer Walnut Kofta. MYSTERIA ka vegetarian menu utna hi seriously developed hai jitna non-veg, genuinely impressive hai yeh.",
+  "Momos har form mein outstanding hain MYSTERIA mein. Steamed, fried, pan-fried, Afghani sab try kiye aur sab ne disappoint nahi kiya. Ramen bhi bahut achha hai.",
+  "MYSTERIA Café, Diner and Games Varanasi mein woh sab kuch hai jo ek modern entertainment aur dining destination honi chahiye. Outstanding food, premium gaming, anime culture, aur warm service.",
+  "Kitty parties MYSTERIA mein unforgettable hoti hain. Diverse menu, gaming zone as bonus, aur staff jo groups ko impressive efficiency se handle karta hai.",
+  "Anniversary MYSTERIA mein celebrate ki aur Mutton Rogan Josh with Garlic Naan followed by Sizzling Brownie ne evening ko perfect bana diya. Staff ki warmth ne extra special feel karaya."
+];
+
+// ─── ARRAY 11: TWO-PART A ─────────────────────────────────────────────────────
+var TWO_PART_A = [
+  "MYSTERIA Café, Diner and Games in Bhelupur is without doubt the most original and exciting destination to emerge in Varanasi in recent years.",
+  "Have been visiting MYSTERIA regularly and every single visit has reinforced just how much thought has gone into making this place genuinely special.",
+  "The first time I walked into MYSTERIA Café and Games I knew immediately that something genuinely different was happening in Bhelupur.",
+  "After visiting MYSTERIA Café, Diner and Games, every other dining and entertainment option in Varanasi feels like it is missing something.",
+  "The creative ambition behind MYSTERIA Café, Diner and Games in Varanasi is evident from the moment you walk through the door.",
+  "Cannot imagine a better all-in-one destination in Varanasi than MYSTERIA Café, Diner and Games for any occasion or mood.",
+  "MYSTERIA in Bhelupur has set a standard for the gaming café concept in Varanasi that will be genuinely difficult to replicate.",
+  "As someone who loves both great food and gaming I had been waiting for a place like MYSTERIA to appear in Varanasi.",
+  "The concept behind MYSTERIA Café, Diner and Games is bold and it is executed with the kind of consistency that builds real loyalty.",
+  "Every time I bring someone new to MYSTERIA they immediately understand why I have been talking about it so enthusiastically.",
+  "MYSTERIA Café, Diner and Games is the kind of destination that does not just serve you, it genuinely takes you somewhere.",
+  "First visited MYSTERIA for the gaming and came back the next week specifically for the Mutton Biryani and Butter Chicken.",
+  "A chance visit to MYSTERIA Café in Bhelupur turned into one of the best decisions I have made about where to spend my leisure time.",
+  "The owners of MYSTERIA have clearly thought deeply about what modern entertainment and dining should look and feel like.",
+  "MYSTERIA Café, Diner and Games is what happens when passion for food, gaming, and pop culture converges in one genuinely great space.",
+  "Came to MYSTERIA with moderate expectations and left with the conviction that this is the best thing to happen to Bhelupur in years.",
+  "The reputation of MYSTERIA Café, Diner and Games for creative food and premium gaming is entirely and completely well-deserved.",
+  "Walking into MYSTERIA is like entering a different dimension within Varanasi, one where gaming culture and great food coexist perfectly.",
+  "The anime merchandise, the gaming setup, the food quality, and the service at MYSTERIA all communicate the same thing: genuine care.",
+  "MYSTERIA Café, Diner and Games has become the reference point in Varanasi when anyone asks where to go for a truly special evening.",
+  "Had heard so much about MYSTERIA Café in Bhelupur before visiting and the reality completely matched every positive thing people had said.",
+  "The projector, the PS5, the anime figures, the outstanding Biryani. MYSTERIA Café, Diner and Games has it all and executes it all well.",
+  "MYSTERIA stands out in Varanasi because it commits fully to its vision instead of hedging, and that conviction creates something truly memorable.",
+  "From the gaming zone to the anime merchandise to the food menu, every element of MYSTERIA Café, Diner and Games reflects real creativity.",
+  "The unique atmosphere at MYSTERIA Café, Diner and Games creates a space where every kind of person finds something to love."
+];
+
+// ─── ARRAY 12: TWO-PART B ─────────────────────────────────────────────────────
+var TWO_PART_B = [
+  "The food quality here is genuinely impressive across every category, from the Biryani to the tandoor section to the Chinese to the desserts.",
+  "Every dish is prepared with visible care and the ingredients are clearly of a high standard throughout the entire menu.",
+  "The PS5 gaming, PC stations, and esports setup combine with the food and atmosphere to create something genuinely world-class for Varanasi.",
+  "The anime figures, the gaming setup, the projector, the books, and the parking all add up to a thoughtfulness that is rare to find.",
+  "From the Butter Chicken to the Sizzling Brownie to the Ramen, the kitchen delivers across every cuisine with impressive consistency.",
+  "The gaming lounge concept is executed with professional hardware and genuine passion, making every session feel premium.",
+  "The warm and knowledgeable staff make every visit feel personally attended to without ever being intrusive or performative.",
+  "A fully air-conditioned space with great parking that serves both Biryani and Valorant sessions is exactly what Varanasi needed.",
+  "The Dum Maarke Biryani lineup alone would make MYSTERIA worth visiting but when you add the gaming and the anime culture it is truly special.",
+  "Both the product quality and the overall experience at MYSTERIA are operating at a level that makes loyalty not just easy but inevitable.",
+  "The Mutton Rogan Josh, the Paneer Malai Tikka, and the Honey Chilli Potato are three dishes that alone justify multiple visits.",
+  "Whether you come for the food, the gaming, the events, or the anime merchandise, MYSTERIA delivers on every front with equal conviction.",
+  "The projector setup, the dedicated gaming stations, and the dining area all feel premium and well-maintained, communicating quality at every turn.",
+  "Highly recommended to everyone in Varanasi who wants a destination that covers great food, great gaming, and great atmosphere all in one place.",
+  "Will keep returning to MYSTERIA Café, Diner and Games for every kind of occasion. That is the most honest verdict I can give.",
+  "The Chicken Bamboo Biryani, the Anjeer Walnut Kofta, and the Paneer Makhani Mille Feuille show a kitchen that genuinely innovates.",
+  "This level of creative ambition in both the food and the gaming concept was something I associated with larger cities before finding MYSTERIA.",
+  "The variety from Ramen to Momos to Biryani to tandoori food all executed at the same high standard is a remarkable kitchen achievement.",
+  "Everything from the PS5 sessions to the Gulab Jamun to the anime keychain browsing creates an experience you genuinely remember.",
+  "The gaming zone, the anime culture, the book corner, and the food menu at MYSTERIA all reflect the same commitment to a distinctive vision.",
+  "No shortcuts in the food, no compromise in the gaming setup, no indifference in the service. MYSTERIA delivers fully on all fronts.",
+  "The desserts alone at MYSTERIA including the Sizzling Brownie with Ice Cream and the Gulab Jamun are worth the visit.",
+  "Anime fans, gamers, food lovers, families, and professionals all find something to love at MYSTERIA, a rare achievement for any venue.",
+  "The consistency across food quality, gaming setup, event facilities, and service makes MYSTERIA Café a genuinely trustworthy destination.",
+  "MYSTERIA Café, Diner and Games is not just the best in Bhelupur, it is the kind of destination that makes Varanasi genuinely proud."
+];
+
+// ─── UTILITY FUNCTIONS ─────────────────────────────────────────────────────────
+function rnd() {
+  if (window.crypto && window.crypto.getRandomValues) {
+    var arr = new Uint32Array(1);
+    window.crypto.getRandomValues(arr);
+    return arr[0] / 4294967296;
+  }
+  return Math.random();
+}
+
+function pick(a) { return a[Math.floor(rnd() * a.length)]; }
+
+var buf = [];
+var BUF_MAX = 20;
+function addBuf(t) { buf.push(t); if (buf.length > BUF_MAX) buf.shift(); }
+function inBuf(t) {
+  return buf.some(function(b) {
+    var wa = new Set(b.toLowerCase().split(/\s+/).slice(0, 14));
+    var wb = new Set(t.toLowerCase().split(/\s+/).slice(0, 14));
+    var c = 0; wa.forEach(function(w) { if (wb.has(w)) c++; });
+    return c / Math.max(wa.size, wb.size, 1) > 0.42;
+  });
+}
+
+var reviewCount = 0;
+
+function compose() {
+  reviewCount++;
+  var t = Math.floor(rnd() * 14);
+
+  if (t === 0)  return pick(VISIT_OPENERS) + ". " + pick(FOOD_PRAISE) + ". " + pick(GAMING_VIBE) + ". " + pick(ONE_LINERS_EN).split('.')[0] + ".";
+  if (t === 1)  return pick(VISIT_OPENERS) + ". " + pick(FOOD_PRAISE) + ". " + pick(SPECIAL_FEATURES) + ". Highly recommend MYSTERIA Café, Diner and Games to everyone in Varanasi.";
+  if (t === 2)  return pick(VISIT_OPENERS) + ". " + pick(EVENTS_MENTIONS) + ". " + pick(FOOD_PRAISE) + ". MYSTERIA is genuinely the best in Bhelupur.";
+  if (t === 3)  return pick(VISIT_OPENERS) + ". " + pick(GAMING_VIBE) + ". " + pick(SPECIAL_FEATURES) + ". Cannot recommend MYSTERIA Café, Diner and Games enough.";
+  if (t === 4)  return pick(VISIT_OPENERS) + ". " + pick(FOOD_PRAISE) + ". " + pick(EVENTS_MENTIONS) + ". Five stars every single time.";
+  if (t === 5)  return pick(ONE_LINERS_EN);
+  if (t === 6)  return pick(ONE_LINERS_HI);
+  if (t === 7)  return pick(TWO_PART_A) + " " + pick(TWO_PART_B);
+  if (t === 8)  return pick(HI_OPENERS) + ". " + pick(HI_FOOD_GAMES) + ". " + pick(HI_AMBIENCE_CLOSE);
+  if (t === 9)  return pick(HI_OPENERS) + ". " + pick(HI_FOOD_GAMES) + ". " + pick(GAMING_VIBE) + ". MYSTERIA Café, Diner and Games ko dil se recommend karta hoon.";
+  if (t === 10) return pick(HI_OPENERS) + ". " + pick(EVENTS_MENTIONS) + ". " + pick(HI_FOOD_GAMES) + ". " + pick(HI_AMBIENCE_CLOSE);
+  if (t === 11) return pick(GAMING_VIBE) + ". " + pick(FOOD_PRAISE) + ". MYSTERIA Café, Diner and Games in Bhelupur Varanasi is the complete destination.";
+  if (t === 12) return pick(SPECIAL_FEATURES) + ". " + pick(EVENTS_MENTIONS) + ". " + pick(FOOD_PRAISE) + ". Absolutely unmissable.";
+  var lines = [
+    "Best gaming café and diner in Bhelupur Varanasi. " + pick(FOOD_PRAISE) + ". " + pick(GAMING_VIBE),
+    "MYSTERIA Café, Diner and Games is in a league of its own. " + pick(SPECIAL_FEATURES) + ". Strongly recommended.",
+    pick(VISIT_OPENERS) + ". " + pick(GAMING_VIBE) + ". Outstanding in every way.",
+    pick(GAMING_VIBE) + ". " + pick(FOOD_PRAISE) + ". MYSTERIA is genuinely unmissable.",
+    pick(EVENTS_MENTIONS) + ". " + pick(FOOD_PRAISE) + ". Will keep coming back.",
+    pick(FOOD_PRAISE) + ". " + pick(GAMING_VIBE) + ". MYSTERIA Café Bhelupur is the real deal.",
+    pick(SPECIAL_FEATURES) + ". " + pick(EVENTS_MENTIONS) + ". Truly one of a kind in Varanasi.",
+    pick(HI_OPENERS) + ". " + pick(HI_FOOD_GAMES) + ". " + pick(HI_AMBIENCE_CLOSE),
+    pick(HI_AMBIENCE_CLOSE) + " " + pick(HI_FOOD_GAMES)
+  ];
+  return pick(lines);
+}
+
+function buildReview() {
+  var v, n = 0;
+  do { v = compose(); n++; } while (inBuf(v) && n < 40);
+  addBuf(v);
+  return v;
+}
+
+var currentReview = "";
+
+function displayReview(anim) {
+  var el = document.getElementById("reviewText");
+  if (anim) {
+    el.classList.add("fade");
+    setTimeout(function() {
+      currentReview = buildReview();
+      el.textContent = currentReview;
+      el.classList.remove("fade");
+    }, 180);
+  } else {
+    currentReview = buildReview();
+    el.textContent = currentReview;
+  }
+}
+
+function refreshReview() {
+  var btn = document.getElementById("btnRefresh");
+  btn.classList.add("spinning");
+  displayReview(true);
+  setTimeout(function() { btn.classList.remove("spinning"); }, 440);
+  var cb = document.getElementById("btnCopy");
+  cb.textContent = "Copy & Post on Google";
+  cb.classList.remove("success");
+  document.getElementById("hint").textContent = "Tap to copy your review, then paste it on Google.";
+}
+
+function copyAndGo() {
+  var btn = document.getElementById("btnCopy");
+  function afterCopy() {
+    btn.textContent = "Copied! Opening Google\u2026 \u2713";
+    btn.classList.add("success");
+    document.getElementById("hint").textContent = "Paste it in the review box on Google. \uD83C\uDFAE";
+    setTimeout(function() { window.open(reviewLink, "_blank"); }, 900);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(currentReview).then(afterCopy).catch(fallback);
+  } else { fallback(); }
+  function fallback() {
+    var ta = document.createElement("textarea");
+    ta.value = currentReview;
+    ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;pointer-events:none;";
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try { document.execCommand("copy"); } catch(e) {}
+    document.body.removeChild(ta);
+    afterCopy();
+  }
+}
+
+window.addEventListener("DOMContentLoaded", function() { displayReview(false); });
+
+// ─── PARTICLE SYSTEM (neon cyan) ─────────────────────────────────────────────
+(function() {
+  var canvas = document.getElementById('particles');
+  var ctx = canvas.getContext('2d');
+  var W, H, dpr;
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width  = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width  = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.scale(dpr, dpr);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  function Particle() { this.reset(true); }
+  Particle.prototype.reset = function(init) {
+    this.x  = Math.random() * W;
+    this.y  = init ? Math.random() * H : H + 8;
+    this.r  = Math.random() * 1.4 + 0.4;
+    this.vx = (Math.random() - 0.5) * 0.25;
+    this.vy = -(Math.random() * 0.35 + 0.1);
+    this.life  = Math.random() * Math.PI;
+    this.speed = 0.006 + Math.random() * 0.006;
+  };
+  var particles = [];
+  for (var i = 0; i < 32; i++) { particles.push(new Particle()); }
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life += p.speed;
+      if (p.y < -12) { p.reset(false); continue; }
+      var alpha = Math.sin(p.life) * 0.55;
+      if (alpha < 0) { p.reset(false); continue; }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,255,204,' + alpha.toFixed(3) + ')';
+      ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
